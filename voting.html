@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vote for Bride or Groom</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 50px;
+        }
+        button {
+            font-size: 20px;
+            padding: 10px 20px;
+            margin: 10px;
+            cursor: pointer;
+        }
+        h1 {
+            color: #333;
+        }
+    </style>
+    <script>
+        let votes = { bride: 0, groom: 0 };
+
+        function vote(option) {
+            votes[option]++;
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('brideCount').innerText = votes.bride;
+            document.getElementById('groomCount').innerText = votes.groom;
+        }
+
+        function resetVotes() {
+            votes = { bride: 0, groom: 0 };
+            updateDisplay();
+        }
+    </script>
+</head>
+<body>
+    <h1>Vote for Bride or Groom</h1>
+    <button onclick="vote('bride')">Vote Bride</button>
+    <button onclick="vote('groom')">Vote Groom</button>
+    <h2>Bride: <span id="brideCount">0</span></h2>
+    <h2>Groom: <span id="groomCount">0</span></h2>
+    <button onclick="resetVotes()">Reset Votes</button>
+</body>
+</html>
