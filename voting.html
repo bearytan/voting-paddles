@@ -1,50 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vote for Bride or Groom</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            margin: 50px;
-        }
-        button {
-            font-size: 20px;
-            padding: 10px 20px;
-            margin: 10px;
-            cursor: pointer;
-        }
-        h1 {
-            color: #333;
-        }
-    </style>
-    <script>
-        let votes = { bride: 0, groom: 0 };
-
-        function vote(option) {
-            votes[option]++;
-            updateDisplay();
-        }
-
-        function updateDisplay() {
-            document.getElementById('brideCount').innerText = votes.bride;
-            document.getElementById('groomCount').innerText = votes.groom;
-        }
-
-        function resetVotes() {
-            votes = { bride: 0, groom: 0 };
-            updateDisplay();
-        }
-    </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Voting System</title>
 </head>
 <body>
-    <h1>Vote for Bride or Groom</h1>
-    <button onclick="vote('bride')">Vote Bride</button>
-    <button onclick="vote('groom')">Vote Groom</button>
-    <h2>Bride: <span id="brideCount">0</span></h2>
-    <h2>Groom: <span id="groomCount">0</span></h2>
-    <button onclick="resetVotes()">Reset Votes</button>
+  <h1>Vote for Bride or Groom</h1>
+
+  <!-- Display vote counts -->
+  <div id="votes">
+    <p><strong id="bride-name">Bride</strong>: <span id="bride-votes">0</span></p>
+    <p><strong id="groom-name">Groom</strong>: <span id="groom-votes">0</span></p>
+  </div>
+
+  <!-- Buttons to vote -->
+  <button id="vote-bride">Vote for Bride</button>
+  <button id="vote-groom">Vote for Groom</button>
+
+  <script>
+    const webAppUrl = 'YOUR_DEPLOYED_WEB_APP_URL_HERE'; // Replace with your web app URL
+
+    /**
+     * Fetch current votes from the backend and update the UI.
+     */
+    async function fetchVotes() {
+      console.log('Fetching votes...');
+      try {
+        const response = await fetch(webAppUrl); // Sends a GET request
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        const data = await response.json();
+        console.log('Votes fetched:', data);
+
+        // Update the UI with the fetched data
+        document.getElementById('bride-name').textContent = data.brideName;
+        document.getElementById('groom-name').textContent = data.groomName;
+        document.getElementById('bride-votes').textContent = data.brideVoteCount;
+        document.getElementById('groom-votes').textContent = data.groomVoteCount;
+      } catch (error) {
+        console.error('Error fetching votes:', error);
+      }
+    }
+
+    /**
+     * Send a vote to the backend.
+     * @param {string} option - The voting option ("bride" or "groom").
+     */
+    async function sendVote(option) {
+      console.log(`Sending vote for: ${option}`);
+      try {
+        const response = await fetch(webAppUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ option }), // Send the vote option in the request body
+        });
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        console.log('Vote sent:', await response.text());
+
+        // Fetch updated votes to refresh the UI
+        fetchVotes();
+      } catch (error) {
+        console.error('Error sending vote:', error);
+      }
+    }
+
+    // Set up event listeners for the buttons
+    document.getElementById('vote-bride').addEventListener('click', () => sendVote('bride'));
+    document.getElementById('vote-groom').addEventListener('click', () => sendVote('groom'));
+
+    // Fetch and display the votes when the page loads
+    fetchVotes();
+  </script>
 </body>
 </html>
