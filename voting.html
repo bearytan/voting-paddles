@@ -19,63 +19,38 @@
   <button id="vote-groom">Vote for Groom</button>
 
   <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycbyNu5-W4eMEx5-EA5I1cLqBev0bQe-y0-P-_myhxU8xL5QtqV-IKewJ-VL1zAxb069SAA/exec'; // Replace with your web app URL
+    const webAppUrl = 'https://script.google.com/macros/s/AKfycbw6DeWA-pTTdDlFN6PbaJkmV_7m5kH8pdRzM4Q3fZDxmcH60Qqrzt6kUmbybUW3ceeBkQ/exec'; // Replace with your web app URL
 
-    /**
-     * Fetch current votes from the backend and update the UI.
-     */
-    async function fetchVotes() {
-      console.log('Fetching votes...');
-      try {
-        const response = await fetch(webAppUrl); // Sends a GET request
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        const data = await response.json();
-        console.log('Votes fetched:', data);
+    async function vote(option) {
+  try {
+    const response = await fetch(webAppUrl, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ option }),
+      mode: 'cors' // Ensure mode is set to 'cors'
+    });
 
-        // Update the UI with the fetched data
-        document.getElementById('bride-name').textContent = data.brideName;
-        document.getElementById('groom-name').textContent = data.groomName;
-        document.getElementById('bride-votes').textContent = data.brideVoteCount;
-        document.getElementById('groom-votes').textContent = data.groomVoteCount;
-      } catch (error) {
-        console.error('Error fetching votes:', error);
-      }
-    }
+    const result = await response.text(); // Read the response if possible
+    console.log(result); // Log the response if needed
+  } catch (error) {
+    console.error('Error sending vote:', error);
+  }
+}
 
-    /**
-     * Send a vote to the backend.
-     * @param {string} option - The voting option ("bride" or "groom").
-     */
-    async function sendVote(option) {
-      console.log(`Sending vote for: ${option}`);
-      try {
-        const response = await fetch(webAppUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ option }), // Send the vote option in the request body
-        });
-        if (!response.ok) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        console.log('Vote sent:', await response.text());
+async function fetchVotes() {
+  try {
+    const response = await fetch(webAppUrl, { mode: 'cors' }); // Ensure mode is set to 'cors'
+    const data = await response.json();
+    console.log(data); // Log the vote counts or use them to update your UI
+  } catch (error) {
+    console.error('Error fetching votes:', error);
+  }
+}
 
-        // Fetch updated votes to refresh the UI
-        fetchVotes();
-      } catch (error) {
-        console.error('Error sending vote:', error);
-      }
-    }
-
-    // Set up event listeners for the buttons
-    document.getElementById('vote-bride').addEventListener('click', () => sendVote('bride'));
-    document.getElementById('vote-groom').addEventListener('click', () => sendVote('groom'));
-
-    // Fetch and display the votes when the page loads
-    fetchVotes();
+// Optionally fetch votes at intervals
+setInterval(fetchVotes, 5000);
   </script>
 </body>
 </html>
