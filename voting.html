@@ -2,15 +2,35 @@
 <html>
 <head>
     <title>Voting</title>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
 </head>
 <body>
     <h1>Vote for the Couple!</h1>
     <div id="votes"></div>
-    <button onclick="vote('Bride')">Vote for Bride</button>
-    <button onclick="vote('Groom')">Vote for Groom</button>
+    <button onclick="vote('bride')">Vote for Bride</button>
+    <button onclick="vote('groom')">Vote for Groom</button>
     <button onclick="resetVotes()" id="resetButton" style="display:none;">Reset Votes</button>
+
     <script>
-        const scriptURL = "https://script.google.com/macros/s/AKfycbw29UzuHm7VMRuAURd8Ocg30lzCJ2OXg_BdePGAv6Enj3suH4dHgmcOJfJ1mfXOToMcOQ/exec"; // Replace with your web app URL
+       const firebaseConfig = {
+  apiKey: "AIzaSyBngkD6yonIx2mI7oiC9BOfXBG-9PekVHE",
+  authDomain: "wedding-game-8c6b9.firebaseapp.com",
+  databaseURL: "https://wedding-game-8c6b9-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "wedding-game-8c6b9",
+  storageBucket: "wedding-game-8c6b9.firebasestorage.app",
+  messagingSenderId: "500082708201",
+  appId: "1:500082708201:web:32d24f1167227f3e686a78"
+};
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const analytics = firebase.getAnalytics();
+        const db = firebase.database(); // No need to pass the app again
+
+        const votesRef = firebase.database().ref('votes');
         const votesDiv = document.getElementById("votes");
         const resetButton = document.getElementById("resetButton");
         let isAdmin = false;
@@ -18,39 +38,27 @@
         function updateVotes(votes) {
             votesDiv.innerHTML = "";
             for (const candidate in votes) {
-                votesDiv.innerHTML += `<p>${candidate}: ${votes[candidate]}</p>`;
+                votesDiv.innerHTML += `<p>${candidate}: ${votes[candidate] || 0}</p>`;
             }
-        }
-
-        function getInitialVotes(){
-            fetch(scriptURL + "?action=getVotes")
-                .then(response => response.json())
-                .then(votes => updateVotes(votes));
         }
 
         function vote(candidate) {
-            fetch(scriptURL + "?action=vote&candidate=" + candidate)
-                .then(() => getInitialVotes());
+          votesRef.child(candidate).transaction(current_value => {
+            return (current_value || 0) + 1;
+          });
         }
 
-        function resetVotes(){
-            if(isAdmin){
-                fetch(scriptURL + "?action=reset")
-                    .then(() => getInitialVotes());
+        function resetVotes() {
+            if (isAdmin) {
+                votesRef.set({ bride: 0, groom: 0 });
             }
         }
 
-        function streamVotes(){
-            const evtSource = new EventSource(scriptURL + "?action=stream");
-            evtSource.onmessage = function(event) {
-                updateVotes(JSON.parse(JSON.parse(event.data)));
-            }
-        }
+        votesRef.on('value', (snapshot) => {
+            const votes = snapshot.val() || { bride: 0, groom: 0};
+            updateVotes(votes);
+        });
 
-        getInitialVotes();
-        streamVotes();
-
-        //Admin check (Simple example, improve security in production)
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('admin') === 'true') {
             isAdmin = true;
