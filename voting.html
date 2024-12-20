@@ -94,6 +94,14 @@
 <body>
     <h1>Raise The Shoe!</h1>
     <div class="vote-container">
+        <div class="candidate" onclick="vote('groom')">
+                <img src="groom.jpg" alt="Groom">
+                <div class="vote-count" id="groom-count">${votes.groom || 0}</div>
+            </div>
+            <div class="candidate" onclick="vote('bride')">
+                <img src="bride.jpg" alt="Bride">
+                <div class="vote-count" id="bride-count">${votes.bride || 0}</div>
+            </div>
        </div>
     <button onclick="resetVotes()" id="resetButton" style="display:none;">Reset Votes</button>
 
@@ -167,20 +175,6 @@
                     });
                 }
             });
-        }
-
-        function createCandidates(votes){
-            voteContainer.innerHTML = `
-            <div class="candidate" onclick="vote('groom')">
-                <img src="groom.jpg" alt="Groom">
-                <div class="vote-count" id="groom-count">${votes.groom || 0}</div>
-            </div>
-            <div class="candidate" onclick="vote('bride')">
-                <img src="bride.jpg" alt="Bride">
-                <div class="vote-count" id="bride-count">${votes.bride || 0}</div>
-            </div>
-            
-            `
         }
 
         function resetVotes() {
