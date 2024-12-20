@@ -33,14 +33,14 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             position: relative; /* Added for absolute positioning of vote count */
+            width: 45%; /* Each candidate takes up 45% of the vote-container width */
+            max-width: 400px; /* Set a maximum width */
         }
 
         .candidate img {
-            width: 300px; /* Fixed width */
-            height: 300px; /* Fixed height */
-            border-radius: 8px;
-            margin-bottom: 30px; /* Increased margin to create space for count */
-            transition: transform 0.2s;
+            width: 100%;
+        aspect-ratio: 1 / 1;
+        object-fit: cover;
         }
 
         .candidate img:hover {
@@ -65,6 +65,18 @@
             border-radius: 5px;
             cursor: pointer;
         }
+        /* Styles for smaller screens (e.g., tablets and phones) */
+@media (max-width: 768px) {
+    .vote-container {
+        flex-direction: column;
+        align-items: center;
+        width: 90%; /* Take up most of the screen width on smaller devices */
+    }
+    .candidate {
+        width: 100%; /* Full width on smaller screens */
+        max-width: none; /* remove max width */
+    }
+}
     </style>
 </head>
 <body>
