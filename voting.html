@@ -32,13 +32,14 @@
             background-color: white;
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
+            position: relative; /* Added for absolute positioning of vote count */
         }
 
         .candidate img {
             max-width: 300px;
             height: auto;
             border-radius: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 30px; /* Increased margin to create space for count */
             transition: transform 0.2s;
         }
 
@@ -49,7 +50,10 @@
         .vote-count {
             font-size: 1.5em;
             font-weight: bold;
-            margin-top: 10px;
+            position: absolute; /* Position the count absolutely */
+            bottom: 10px;      /* Align to the bottom */
+            left: 50%;
+            transform: translateX(-50%); /* Center horizontally */
         }
 
         #resetButton {
@@ -66,13 +70,13 @@
 <body>
     <h1>Vote for the Couple!</h1>
     <div class="vote-container">
-        <div class="candidate" onclick="vote('bride')">
-            <img src="bride.jpg" alt="Bride">
-            <div class="vote-count" id="bride-count">0</div>
-        </div>
         <div class="candidate" onclick="vote('groom')">
             <img src="groom.jpg" alt="Groom">
             <div class="vote-count" id="groom-count">0</div>
+        </div>
+        <div class="candidate" onclick="vote('bride')">
+            <img src="bride.jpg" alt="Bride">
+            <div class="vote-count" id="bride-count">0</div>
         </div>
     </div>
     <button onclick="resetVotes()" id="resetButton" style="display:none;">Reset Votes</button>
