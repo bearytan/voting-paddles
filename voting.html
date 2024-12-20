@@ -25,9 +25,14 @@
 };
 
         // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const analytics = firebase.getAnalytics();
-        const db = firebase.database(); // No need to pass the app again
+        const app = firebase.initializeApp(firebaseConfig);
+        let analytics; // Declare analytics variable
+
+        if (firebaseConfig.measurementId) { // Only initialize analytics if measurementId is present
+          analytics = firebase.getAnalytics(app);
+        }
+
+        const db = firebase.database(app);
 
         const votesRef = firebase.database().ref('votes');
         const votesDiv = document.getElementById("votes");
