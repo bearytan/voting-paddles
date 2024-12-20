@@ -7,7 +7,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuidv4.min.js"></script>
     <style>
-        /* Default Styles (Large Screens) */
+        /* Default Styles */
         body {
             font-family: sans-serif;
             display: flex;
@@ -15,14 +15,15 @@
             align-items: center;
             margin: 20px;
             background-color: #f0f0f0;
+            min-height: 100vh; /* Ensure body takes full viewport height */
         }
 
         .vote-container {
             display: flex;
             gap: 20px;
             margin-bottom: 20px;
-            width: 90%; /* Take up most of the screen width */
-            max-width: 800px; /* Set a maximum width for the container */
+            width: 90%;
+            max-width: 800px;
         }
 
         .candidate {
@@ -36,38 +37,34 @@
             box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
             cursor: pointer;
             position: relative;
-            overflow: hidden;
-            width: 48%; /* Slightly less than 50% for spacing */
-            box-sizing: border-box; /* Include padding and border in element's total width and height */
+            width: 48%;
+            box-sizing: border-box;
         }
 
         .candidate img {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            object-fit: cover;
+            max-width: 100%; /* Image can't exceed container width */
+            height: auto;     /* Height adjusts proportionally */
             border-radius: 8px;
-            transition: transform 0.2s;
+            display: block;
         }
 
         .candidate img:hover {
             transform: scale(1.05);
         }
 
-        .vote-count {
-            font-size: 1.5em;
-            font-weight: bold;
-            position: absolute;
-            bottom: 10px;
-            left: 50%;
-            transform: translateX(-50%);
-            background-color: rgba(255, 255, 255, 0.7); /* Add a semi-transparent background */
-            padding: 5px; /* Add some padding around the number */
-            border-radius: 5px; /* Rounded corners for the background */
+        .vote-count { /* ... */ }
+        #resetButton {
+            margin-top: auto; /* Push the button to the bottom */
+            margin-bottom: 20px;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
         }
 
-        #resetButton { /* ... */ }
-
-        /* Media Queries (Smaller Screens) */
+        /* Media Queries */
         @media (max-width: 768px) {
             .vote-container {
                 flex-direction: column;
@@ -76,7 +73,7 @@
             }
             .candidate {
                 width: 100%;
-                margin-bottom: 20px; /* Add margin between stacked items */
+                margin-bottom: 20px;
             }
         }
     </style>
