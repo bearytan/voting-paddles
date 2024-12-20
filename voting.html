@@ -1,56 +1,61 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Voting System</title>
+    <title>Voting</title>
 </head>
 <body>
-  <h1>Vote for Bride or Groom</h1>
+    <h1>Vote for the Couple!</h1>
+    <div id="votes"></div>
+    <button onclick="vote('Bride')">Vote for Bride</button>
+    <button onclick="vote('Groom')">Vote for Groom</button>
+    <button onclick="resetVotes()" id="resetButton" style="display:none;">Reset Votes</button>
+    <script>
+        const scriptURL = "https://script.google.com/macros/s/AKfycbxXQOjQAFGPXarZtim0qTVFbi7Og6sVl7JaOvDdehNRl3fYVbqsisX6MDV6iC1-TUOr_Q/exec"; // Replace with your web app URL
+        const votesDiv = document.getElementById("votes");
+        const resetButton = document.getElementById("resetButton");
+        let isAdmin = false;
 
-  <!-- Display vote counts -->
-  <div id="votes">
-    <p><strong id="bride-name">Bride</strong>: <span id="bride-votes">0</span></p>
-    <p><strong id="groom-name">Groom</strong>: <span id="groom-votes">0</span></p>
-  </div>
+        function updateVotes(votes) {
+            votesDiv.innerHTML = "";
+            for (const candidate in votes) {
+                votesDiv.innerHTML += `<p>${candidate}: ${votes[candidate]}</p>`;
+            }
+        }
 
-  <!-- Buttons to vote -->
-  <button id="vote-bride">Vote for Bride</button>
-  <button id="vote-groom">Vote for Groom</button>
+        function getInitialVotes(){
+            fetch(scriptURL + "?action=getVotes")
+                .then(response => response.json())
+                .then(votes => updateVotes(votes));
+        }
 
-  <script>
-    const webAppUrl = 'https://script.google.com/macros/s/AKfycby3Xq4fptw9J3eEjCpfHIt1_TpqDVHf-iWUdQJ2GhUC_MB-TziOiY8B_MBQ7fcnzXpfrA/exec'; // Replace with your web app URL
+        function vote(candidate) {
+            fetch(scriptURL + "?action=vote&candidate=" + candidate)
+                .then(() => getInitialVotes());
+        }
 
-    async function vote(option) {
-  try {
-    const response = await fetch(webAppUrl, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({ option }),
-      mode: 'cors' // Ensure mode is set to 'cors'
-    });
+        function resetVotes(){
+            if(isAdmin){
+                fetch(scriptURL + "?action=reset")
+                    .then(() => getInitialVotes());
+            }
+        }
 
-    const result = await response.text(); // Read the response if possible
-    console.log(result); // Log the response if needed
-  } catch (error) {
-    console.error('Error sending vote:', error);
-  }
-}
+        function streamVotes(){
+            const evtSource = new EventSource(scriptURL + "?action=stream");
+            evtSource.onmessage = function(event) {
+                updateVotes(JSON.parse(JSON.parse(event.data)));
+            }
+        }
 
-async function fetchVotes() {
-  try {
-    const response = await fetch(webAppUrl, { mode: 'cors' }); // Ensure mode is set to 'cors'
-    const data = await response.json();
-    console.log(data); // Log the vote counts or use them to update your UI
-  } catch (error) {
-    console.error('Error fetching votes:', error);
-  }
-}
+        getInitialVotes();
+        streamVotes();
 
-// Optionally fetch votes at intervals
-setInterval(fetchVotes, 5000);
-  </script>
+        //Admin check (Simple example, improve security in production)
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('admin') === 'true') {
+            isAdmin = true;
+            resetButton.style.display = "block";
+        }
+    </script>
 </body>
 </html>
