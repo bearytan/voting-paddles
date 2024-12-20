@@ -6,62 +6,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/uuid/8.3.2/uuidv4.min.js"></script>
-    <style>
-        body {
-            font-family: sans-serif;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px;
-            background-color: #f0f0f0;
-        }
-
-        .vote-container {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .candidate {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            border: 1px solid #ccc;
-            padding: 10px;
-            border-radius: 8px;
-            background-color: white;
-            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-            cursor: pointer;
-        }
-
-        .candidate img {
-            max-width: 300px;
-            height: auto;
-            border-radius: 8px;
-            margin-bottom: 10px;
-            transition: transform 0.2s;
-        }
-
-        .candidate img:hover {
-            transform: scale(1.05);
-        }
-
-        .vote-count {
-            font-size: 1.5em;
-            font-weight: bold;
-            margin-top: 10px;
-        }
-
-        #resetButton {
-            margin-top: 20px;
-            padding: 10px 20px;
-            background-color: #dc3545;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-    </style>
+    <style> /* ... (your CSS) ... */ </style>
 </head>
 <body>
     <h1>Vote for the Couple!</h1>
@@ -78,7 +23,7 @@
     <button onclick="resetVotes()" id="resetButton" style="display:none;">Reset Votes</button>
 
     <script>
-        // Your Firebase config (REPLACE THESE WITH YOUR ACTUAL VALUES FROM FIREBASE CONSOLE!)
+        // Your Firebase config
         const firebaseConfig = {
   apiKey: "AIzaSyBngkD6yonIx2mI7oiC9BOfXBG-9PekVHE",
   authDomain: "wedding-game-8c6b9.firebaseapp.com",
@@ -89,12 +34,25 @@
   appId: "1:500082708201:web:32d24f1167227f3e686a78"
 };
 
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        const app = firebase.initializeApp(firebaseConfig);
         const analytics = firebase.getAnalytics();
-        const db = firebase.database();
+        const db = firebase.database(app);
 
-        const votesRef = firebase.database().ref('votes');
-                const hasVotedRef = firebase.database().ref('hasVoted');
+        let votesRef; // Declare votesRef outside
+
+        firebase.database().ref('.info/connected').on('value', function(snapshot) {
+            if (snapshot.val() === true) {
+                votesRef = firebase.database().ref('votes');
+                hasVotedRef = firebase.database().ref('hasVoted');
+
+                votesRef.on('value', (snapshot) => {
+                    const votes = snapshot.val() || { bride: 0, groom: 0 };
+                    updateVotes(votes);
+                });
+            }
+        });
+
         const votesDiv = document.getElementById("votes");
         const resetButton = document.getElementById("resetButton");
         let isAdmin = false;
@@ -105,6 +63,7 @@
         }
 
         function vote(candidate) {
+            // ... (Your vote function - no changes needed here)
             let voterId = localStorage.getItem('voterId');
 
             if (!voterId) {
@@ -137,11 +96,6 @@
                 hasVotedRef.set(null);
             }
         }
-
-        votesRef.on('value', (snapshot) => {
-            const votes = snapshot.val() || { bride: 0, groom: 0 };
-            updateVotes(votes);
-        });
 
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('admin') === 'true') {
