@@ -94,6 +94,7 @@
         const db = firebase.database();
 
         const votesRef = firebase.database().ref('votes');
+                const hasVotedRef = firebase.database().ref('hasVoted');
         const votesDiv = document.getElementById("votes");
         const resetButton = document.getElementById("resetButton");
         let isAdmin = false;
@@ -111,9 +112,9 @@
                 localStorage.setItem('voterId', voterId);
             }
 
-            const hasVotedRef = firebase.database().ref('hasVoted/' + voterId);
+            const userHasVotedRef = hasVotedRef.child(voterId);
 
-            hasVotedRef.once('value', (snapshot) => {
+            userHasVotedRef.once('value', (snapshot) => {
                 if (snapshot.exists()) {
                     alert("You have already voted.");
                     return;
@@ -121,7 +122,7 @@
                     votesRef.child(candidate).transaction(current_value => {
                         return (current_value || 0) + 1;
                     }).then(() => {
-                        hasVotedRef.set(true);
+                        userHasVotedRef.set(true);
                     }).catch((error) => {
                         console.error("Transaction failed: ", error);
                         alert("An error occurred while voting. Please try again later.");
@@ -133,7 +134,7 @@
         function resetVotes() {
             if (isAdmin) {
                 votesRef.set({ bride: 0, groom: 0 });
-                firebase.database().ref('hasVoted').set(null);
+                hasVotedRef.set(null);
             }
         }
 
